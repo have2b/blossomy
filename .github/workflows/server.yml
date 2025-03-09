@@ -36,7 +36,7 @@ jobs:
         run: |
           az container create \
             --resource-group ${{ secrets.RESOURCE_GROUP }} \
-            --name blossomy \
+            --name blossomy-server \
             --dns-name-label blossomy-server \
             --image longvt.azurecr.io/server:${{ github.sha }} \
             --ports 5000 \
