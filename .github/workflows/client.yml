@@ -1,7 +1,7 @@
 name: Client CI/CD Pipeline
 on:
   push:
-    branches: [main]
+    branches: [master]
     paths:
       - "client/**"
 jobs:
