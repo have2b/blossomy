@@ -6,21 +6,32 @@ on:
       - "client/**"
 jobs:
   build-and-deploy:
+    permissions:
+      id-token: write
+
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: Azure CLI Login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
       - name: ACR Login
         uses: azure/docker-login@v1
         with:
           login-server: longvt.azurecr.io
           username: ${{ secrets.ACR_USERNAME }}
           password: ${{ secrets.ACR_PASSWORD }}
+
       - name: Build and Push Client
         run: |
           docker build -t longvt.azurecr.io/client:${{ github.sha }} ./client
           docker push longvt.azurecr.io/client:${{ github.sha }}
-      - name: Azure CLI Login
-        run: az login --username ${{ secrets.AZURE_USERNAME }} --password ${{ secrets.AZURE_PASSWORD }} --tenant ${{ secrets.AZURE_TENANT_ID }}
+
       - name: Update Client Container
         run: |
           az container create \
@@ -29,6 +40,9 @@ jobs:
             --dns-name-label blossomy-${{ github.run_number }} \
             --image longvt.azurecr.io/client:${{ github.sha }} \
             --ports 80 \
+            --os-type Linux \
+            --cpu 1 \
+            --memory 1 \
             --registry-login-server longvt.azurecr.io \
             --registry-username ${{ secrets.ACR_USERNAME }} \
             --registry-password ${{ secrets.ACR_PASSWORD }} \
