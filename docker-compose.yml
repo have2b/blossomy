@@ -1,0 +1,44 @@
+services:
+  client:
+    container_name: blossomy-client
+    image: longvt.azurecr.io/client:${TAG:-latest}
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    depends_on:
+      - db
+      - server
+    networks:
+      - blossomy-network
+  server:
+    container_name: blossomy-server
+    image: longvt.azurecr.io/server:${TAG:-latest}
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    depends_on:
+      - db
+    networks:
+      - blossomy-network
+  db:
+    container_name: blossomy-db
+    image: postgres:16.8-alpine3.20
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: blossomy
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - blossomy-network
+networks:
+  blossomy-network:
+    driver: bridge
+volumes:
+  pgdata:

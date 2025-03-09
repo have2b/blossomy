@@ -1,0 +1,35 @@
+name: Server CI/CD Pipeline
+on:
+  push:
+    branches: [main]
+    paths:
+      - "server/**"
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: ACR Login
+        uses: azure/docker-login@v1
+        with:
+          login-server: longvt.azurecr.io
+          username: ${{ secrets.ACR_USERNAME }}
+          password: ${{ secrets.ACR_PASSWORD }}
+      - name: Build and Push Server
+        run: |
+          docker build -t longvt.azurecr.io/server:${{ github.sha }} ./server
+          docker push longvt.azurecr.io/server:${{ github.sha }}
+      - name: Azure CLI Login
+        run: az login --username ${{ secrets.AZURE_USERNAME }} --password ${{ secrets.AZURE_PASSWORD }} --tenant ${{ secrets.AZURE_TENANT_ID }}
+      - name: Update Server Container
+        run: |
+          az container create \
+            --resource-group ${{ secrets.RESOURCE_GROUP }} \
+            --name blossomy \
+            --dns-name-label blossomy-server \
+            --image longvt.azurecr.io/server:${{ github.sha }} \
+            --ports 5000 \
+            --registry-login-server longvt.azurecr.io \
+            --registry-username ${{ secrets.ACR_USERNAME }} \
+            --registry-password ${{ secrets.ACR_PASSWORD }} \
+            --location southeastasia
