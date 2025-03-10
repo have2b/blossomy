@@ -10,7 +10,10 @@ app.get("/", (c) => {
 });
 
 app.get("/me", (c) => {
-  return c.text("Hi, I'm Long");
+  return c.json({
+    success: true,
+    message: "tlongizdabezt!",
+  });
 });
 
 export default {
