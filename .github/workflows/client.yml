@@ -29,7 +29,9 @@ jobs:
 
       - name: Build and Push Client
         run: |
-          docker build -t longvt.azurecr.io/client:${{ github.sha }} ./client
+          docker build \
+            --build-arg VITE_API_URL=${{ secrets.VITE_API_URL }} \
+            -t longvt.azurecr.io/client:${{ github.sha }} ./client
           docker push longvt.azurecr.io/client:${{ github.sha }}
 
       - name: Update Client Container
