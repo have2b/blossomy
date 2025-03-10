@@ -34,16 +34,13 @@ jobs:
 
       - name: Update Client Container
         run: |
-          az container create \
-            --resource-group ${{ secrets.RESOURCE_GROUP }} \
+          az containerapp up \
             --name blossomy-client \
-            --dns-name-label blossomy-${{ github.run_number }} \
             --image longvt.azurecr.io/client:${{ github.sha }} \
-            --ports 80 \
-            --os-type Linux \
-            --cpu 1 \
-            --memory 1 \
-            --registry-login-server longvt.azurecr.io \
+            --ingress external \
+            --location southeastasia \
+            --registry-server longvt.azurecr.io \
             --registry-username ${{ secrets.ACR_USERNAME }} \
             --registry-password ${{ secrets.ACR_PASSWORD }} \
-            --location southeastasia
+            --resource-group ${{ secrets.RESOURCE_GROUP }} \
+            --target-port 80 \

@@ -34,16 +34,13 @@ jobs:
 
       - name: Update Server Container
         run: |
-          az container create \
-            --resource-group ${{ secrets.RESOURCE_GROUP }} \
+          az containerapp up \
             --name blossomy-server \
-            --dns-name-label blossomy-server \
             --image longvt.azurecr.io/server:${{ github.sha }} \
-            --ports 5000 \
-            --os-type Linux \
-            --cpu 1 \
-            --memory 1 \
-            --registry-login-server longvt.azurecr.io \
+            --ingress external \
+            --location southeastasia \
+            --registry-server longvt.azurecr.io \
             --registry-username ${{ secrets.ACR_USERNAME }} \
             --registry-password ${{ secrets.ACR_PASSWORD }} \
-            --location southeastasia
+            --resource-group ${{ secrets.RESOURCE_GROUP }} \
+            --target-port 5000
