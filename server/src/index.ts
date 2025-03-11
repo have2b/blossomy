@@ -1,3 +1,4 @@
+import { sql } from "bun";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 
@@ -11,8 +12,16 @@ app.get("/", (c) => {
 
 app.get("/me", (c) => {
   return c.json({
+    name: "Long",
+  });
+});
+
+app.get("/db", async (c) => {
+  const res = await sql`SELECT * FROM public.user`;
+
+  return c.json({
     success: true,
-    message: "tlongizdabezt!",
+    message: res,
   });
 });
 
